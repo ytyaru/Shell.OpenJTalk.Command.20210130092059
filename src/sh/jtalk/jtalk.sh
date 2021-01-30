@@ -2,6 +2,7 @@
 OPENJTALK_VOICE_DIR="${OPENJTALK_VOICE_DIR:-$HOME/root/sys/env/tool/openjtalk/voice/}"
 #OPENJTALK_VOICE_PATHS=""
 Run() { # jtalk
+	local SCRIPT_DIR="$(cd $(dirname "$0"); pwd)"
 	GetVoices() { # $1...: PATH_DIR(option)
 		[ -n "$OPENJTALK_VOICE_PATHS" ] && { echo -e "$OPENJTALK_VOICE_PATHS"; return; }
 		local paths=()
