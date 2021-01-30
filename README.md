@@ -4,6 +4,10 @@
 
 I made a command that makes OpenJTalk easy to use.
 
+This script assumes that you have built OpenJTalk below.
+
+* [Build.OpenJTalk.20200428110203](https://github.com/ytyaru/Build.OpenJTalk.20200428110203)
+
 # DEMO
 
 ![]()

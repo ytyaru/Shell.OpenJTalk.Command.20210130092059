@@ -4,6 +4,10 @@
 
 　OpenJTalkを使いやすくしたコマンドを作った。
 
+　本スクリプトは以下でOpenJTalkをビルドしていることを前提とする。
+
+* [Build.OpenJTalk.20200428110203](https://github.com/ytyaru/Build.OpenJTalk.20200428110203)
+
 # デモ
 
 ![]()
