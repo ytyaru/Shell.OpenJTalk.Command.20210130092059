@@ -196,7 +196,7 @@ Run() { # jtalk
 		local OUTPUT="$OPT_OUTPUT_FILE_PATH"
 		[ "$OUTPUT" = '/dev/stdout' ] && { echo ' | aplay -q'; return; }
 		[ 1 -eq $OPT_IS_SILENT ] && return;
-		echo " ; aplay \"${OUTPUT}\"; "
+		echo " ; aplay -q \"${OUTPUT}\"; "
 	}
 	local cmd="echo \"$MESSAGE\" | $(OpenJTalkCmd) $(AplayCmd)"
 	echo "${cmd}"
