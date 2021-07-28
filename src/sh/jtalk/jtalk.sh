@@ -116,7 +116,7 @@ Run() { # jtalk
 		local this_path="$(realpath "${BASH_SOURCE:-0}")"
 		local this="$(basename "$this_path")"
 		cat <<-EOS
-			音声合成する。日本語。OpenJTalkを使う。	v0.0.1
+			音声合成する。日本語。OpenJTalkを使う。	v0.0.2
 			Usage: $this [options] MESSAGE
 			Options:
 			  -r       声をランダムにする（ブラックリスト除外）
@@ -157,19 +157,26 @@ Run() { # jtalk
 			  $this -v type-beta 初音ミクです
 			  $this -o /tmp/work/a.wav 音声ファイルに録音します
 		EOS
+		cat <<-EOS
+			History:
+			  2021-07-28 0.0.2 -wフラグ追加
+			  2021-01-30 0.0.1 新規作成
+		EOS
 	}
 	local OPT_IS_RANDOM_VOICE=0
 	local OPT_SELECTED_VOICE="$(GetDefaultVoice)"
 	local OPT_SELECTED_DIC_PATH="$(GetDefaultDic)"
 	local OPT_OUTPUT_FILE_PATH="/dev/stdout"
+	local OPT_IS_OUTPUT_FILE=0
 	local OPT_SPEED="1.0" # -r 1.0
 	local OPT_VOLUME="0.0" # -g 0.0
 	local OPT_IS_SILENT=0
-	while getopts ':rRv:o:d:s:V:Sh' OPT; do
+	while getopts ':rRwv:o:d:s:V:Sh' OPT; do
 		case $OPT in
 #		r) OPT_SELECTED_VOICE="$(GetRandomVoice)" ;;
 		r) OPT_SELECTED_VOICE="$(echo -e "$(GetVoicesWithoutBlacklist)" | GetRandomVoice)" ;;
 		R) OPT_SELECTED_VOICE="$(echo -e "$(GetGreenlistVoices)" | GetRandomVoice)" ;;
+		w) OPT_IS_OUTPUT_FILE=1 ;;
 		v) OPT_SELECTED_VOICE="$(SearchVoice "$OPTARG")" ;;
 		d) OPT_SELECTED_DIC_PATH="$OPTARG" ;;
 		o) OPT_OUTPUT_FILE_PATH="$OPTARG" ;;
@@ -191,6 +198,7 @@ Run() { # jtalk
 		local VOICE="$OPT_SELECTED_VOICE"
 		local DIC="$OPT_SELECTED_DIC_PATH"
 		local OUTPUT="$OPT_OUTPUT_FILE_PATH"
+		[ 1 -eq $OPT_IS_OUTPUT_FILE ] && local OUTPUT="${MESSAGE}.wav";
 		echo "open_jtalk -x \"$DIC\" -m \"$VOICE\" -ow \"$OUTPUT\" -r $OPT_SPEED -g $OPT_VOLUME"
 	}
 	AplayCmd() {
@@ -199,9 +207,17 @@ Run() { # jtalk
 		[ 1 -eq $OPT_IS_SILENT ] && return;
 		echo " ; aplay -q \"${OUTPUT}\"; "
 	}
+	Convert() {
+		[ 1 -ne $OPT_IS_OUTPUT_FILE ] && return;
+		ffmpeg -i "${MESSAGE}.wav" -y -vn -ac 1 -ar 44100 -acodec flac -f flac "${MESSAGE}.flac"
+		ffmpeg -i "${MESSAGE}.wav" -y -vn -ac 1 -ar 44100 -ab 128k -acodec libmp3lame -f mp3 "${MESSAGE}.mp3"
+		ffmpeg -i "${MESSAGE}.wav" -y -vn -ac 1 -ar 44100 -ab 128k -acodec libvorbis -f ogg "${MESSAGE}.ogg"
+		ffmpeg -i "${MESSAGE}.wav" -y -vn -ac 1 -ar 44100 -ab 128k -acodec aac -strict experimental -f mp4 "${MESSAGE}.m4a"
+	}
 	local cmd="echo \"$MESSAGE\" | $(OpenJTalkCmd) $(AplayCmd)"
 	echo "${cmd}"
 	eval "${cmd}"
+	Convert
 }
 Run "$@"
 
